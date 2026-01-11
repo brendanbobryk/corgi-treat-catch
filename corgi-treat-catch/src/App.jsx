@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const GAME_WIDTH = 400;
 const GAME_HEIGHT = 500;
@@ -10,6 +10,14 @@ export default function App() {
   const [treats, setTreats] = useState([]);
   const [score, setScore] = useState(0);
 
+  // Ref to avoid restarting the game loop
+  const corgiXRef = useRef(corgiX);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    corgiXRef.current = corgiX;
+  }, [corgiX]);
+
   // Move corgi with arrow keys
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -20,6 +28,7 @@ export default function App() {
         setCorgiX((x) => Math.min(GAME_WIDTH - CORGI_WIDTH, x + 20));
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
@@ -40,7 +49,7 @@ export default function App() {
     return () => clearInterval(spawnInterval);
   }, []);
 
-  // Move treats + detect collisions
+  // Game loop (stable, no dependency on corgiX)
   useEffect(() => {
     const gameLoop = setInterval(() => {
       setTreats((prev) =>
@@ -49,8 +58,8 @@ export default function App() {
           .filter((t) => {
             const hit =
               t.y + TREAT_SIZE >= GAME_HEIGHT - 60 &&
-              t.x + TREAT_SIZE > corgiX &&
-              t.x < corgiX + CORGI_WIDTH;
+              t.x + TREAT_SIZE > corgiXRef.current &&
+              t.x < corgiXRef.current + CORGI_WIDTH;
 
             if (hit) {
               setScore((s) => s + 1);
@@ -63,7 +72,7 @@ export default function App() {
     }, 50);
 
     return () => clearInterval(gameLoop);
-  }, [corgiX]);
+  }, []);
 
   return (
     <div className="container">
