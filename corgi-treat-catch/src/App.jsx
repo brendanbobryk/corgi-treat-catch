@@ -1,35 +1,89 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+const GAME_WIDTH = 400;
+const GAME_HEIGHT = 500;
+const CORGI_WIDTH = 60;
+const TREAT_SIZE = 30;
+
+export default function App() {
+  const [corgiX, setCorgiX] = useState(GAME_WIDTH / 2 - CORGI_WIDTH / 2);
+  const [treats, setTreats] = useState([]);
+  const [score, setScore] = useState(0);
+
+  // Move corgi with arrow keys
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowLeft") {
+        setCorgiX((x) => Math.max(0, x - 20));
+      }
+      if (e.key === "ArrowRight") {
+        setCorgiX((x) => Math.min(GAME_WIDTH - CORGI_WIDTH, x + 20));
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Spawn treats
+  useEffect(() => {
+    const spawnInterval = setInterval(() => {
+      setTreats((prev) => [
+        ...prev,
+        {
+          id: Math.random(),
+          x: Math.random() * (GAME_WIDTH - TREAT_SIZE),
+          y: 0,
+        },
+      ]);
+    }, 800);
+
+    return () => clearInterval(spawnInterval);
+  }, []);
+
+  // Move treats + detect collisions
+  useEffect(() => {
+    const gameLoop = setInterval(() => {
+      setTreats((prev) =>
+        prev
+          .map((t) => ({ ...t, y: t.y + 8 }))
+          .filter((t) => {
+            const hit =
+              t.y + TREAT_SIZE >= GAME_HEIGHT - 60 &&
+              t.x + TREAT_SIZE > corgiX &&
+              t.x < corgiX + CORGI_WIDTH;
+
+            if (hit) {
+              setScore((s) => s + 1);
+              return false;
+            }
+
+            return t.y < GAME_HEIGHT;
+          })
+      );
+    }, 50);
+
+    return () => clearInterval(gameLoop);
+  }, [corgiX]);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="container">
+      <h1>🐶 Corgi Treat Catch</h1>
+      <p>Score: {score}</p>
 
-export default App
+      <div className="game">
+        {treats.map((t) => (
+          <div
+            key={t.id}
+            className="treat"
+            style={{ left: t.x, top: t.y }}
+          />
+        ))}
+
+        <div
+          className="corgi"
+          style={{ left: corgiX }}
+        />
+      </div>
+    </div>
+  );
+}
