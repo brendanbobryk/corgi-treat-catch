@@ -1,7 +1,8 @@
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
-  background: #f6f6f6;
+  background: #121212;
+  color: #f0f0f0;
 }
 
 .container {
@@ -13,8 +14,8 @@ body {
   width: 400px;
   height: 500px;
   margin: 0 auto;
-  background: #dff1ff;
-  border: 3px solid #333;
+  background: #1e1e1e;
+  border: 3px solid #555;
   overflow: hidden;
 }
 
@@ -23,7 +24,7 @@ body {
   bottom: 10px;
   width: 60px;
   height: 40px;
-  background: brown;
+  background: #c68642;
   border-radius: 10px;
 }
 
@@ -31,6 +32,6 @@ body {
   position: absolute;
   width: 30px;
   height: 30px;
-  background: gold;
+  background: #ffcc00;
   border-radius: 50%;
 }
