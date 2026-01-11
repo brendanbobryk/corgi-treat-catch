@@ -22,16 +22,14 @@ body {
 .corgi {
   position: absolute;
   bottom: 10px;
-  width: 60px;
-  height: 40px;
-  background: #c68642;
-  border-radius: 10px;
+  width: 70px;
+  height: 50px;
+  pointer-events: none;
 }
 
 .treat {
   position: absolute;
-  width: 30px;
-  height: 30px;
-  background: #ffcc00;
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  pointer-events: none;
 }

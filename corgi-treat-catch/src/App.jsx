@@ -1,19 +1,20 @@
 import { useEffect, useRef, useState } from "react";
+import corgiImg from "./assets/corgi.png";
+import boneImg from "./assets/bone.png";
 
 const GAME_WIDTH = 400;
 const GAME_HEIGHT = 500;
-const CORGI_WIDTH = 60;
-const TREAT_SIZE = 30;
+const CORGI_WIDTH = 70;
+const CORGI_HEIGHT = 50;
+const TREAT_SIZE = 32;
 
 export default function App() {
   const [corgiX, setCorgiX] = useState(GAME_WIDTH / 2 - CORGI_WIDTH / 2);
   const [treats, setTreats] = useState([]);
   const [score, setScore] = useState(0);
 
-  // Ref to avoid restarting the game loop
   const corgiXRef = useRef(corgiX);
 
-  // Keep ref in sync with state
   useEffect(() => {
     corgiXRef.current = corgiX;
   }, [corgiX]);
@@ -33,7 +34,7 @@ export default function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Spawn treats
+  // Spawn bones
   useEffect(() => {
     const spawnInterval = setInterval(() => {
       setTreats((prev) => [
@@ -41,7 +42,7 @@ export default function App() {
         {
           id: Math.random(),
           x: Math.random() * (GAME_WIDTH - TREAT_SIZE),
-          y: 0,
+          y: -TREAT_SIZE,
         },
       ]);
     }, 800);
@@ -49,7 +50,7 @@ export default function App() {
     return () => clearInterval(spawnInterval);
   }, []);
 
-  // Game loop (stable, no dependency on corgiX)
+  // Game loop
   useEffect(() => {
     const gameLoop = setInterval(() => {
       setTreats((prev) =>
@@ -57,7 +58,7 @@ export default function App() {
           .map((t) => ({ ...t, y: t.y + 8 }))
           .filter((t) => {
             const hit =
-              t.y + TREAT_SIZE >= GAME_HEIGHT - 60 &&
+              t.y + TREAT_SIZE >= GAME_HEIGHT - CORGI_HEIGHT - 10 &&
               t.x + TREAT_SIZE > corgiXRef.current &&
               t.x < corgiXRef.current + CORGI_WIDTH;
 
@@ -81,14 +82,18 @@ export default function App() {
 
       <div className="game">
         {treats.map((t) => (
-          <div
+          <img
             key={t.id}
+            src={boneImg}
+            alt="bone"
             className="treat"
             style={{ left: t.x, top: t.y }}
           />
         ))}
 
-        <div
+        <img
+          src={corgiImg}
+          alt="corgi"
           className="corgi"
           style={{ left: corgiX }}
         />
